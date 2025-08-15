@@ -33,4 +33,13 @@ class Portfolio extends Model
     {
         return $this->project_image ? asset('storage/' . $this->project_image) : null;
     }
+
+    // Get full image URL for API
+    public function getProjectImageUrlAttribute()
+    {
+        if ($this->project_image) {
+            return asset('storage/' . $this->project_image);
+        }
+        return null;
+    }
 }

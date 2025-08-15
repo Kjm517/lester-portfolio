@@ -55,27 +55,27 @@
                 Loading experiences...
               </div>
               <div v-else>
-                <div v-for="experience in experiences" :key="experience.id" class="bg-gray-800 border border-gray-700 rounded-lg p-6 transition-all duration-300 hover:border-gray-600">
-                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                    <div class="space-y-4">
-                      <input 
-                        :value="experience.title"
-                        readonly
-                        class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500" 
-                      />
-                      <input 
-                        :value="experience.company"
-                        readonly
-                        class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500" 
-                      />
-                    </div>
+                                  <div v-for="experience in experiences" :key="experience.id" class="bg-gray-800 border border-gray-700 rounded-lg p-6 transition-all duration-300 hover:border-gray-600">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                      <div class="space-y-4">
+                        <input 
+                          :value="experience.position"
+                          readonly
+                          class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500" 
+                        />
+                        <input 
+                          :value="experience.company"
+                          readonly
+                          class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500" 
+                        />
+                      </div>
 
                     <div class="grid grid-cols-2 gap-4">
                       <div class="space-y-2">
                         <label class="text-gray-400 text-sm font-medium">Start Date</label>
                         <div class="space-y-2">
                           <input 
-                            :value="experience.start_month"
+                            :value="getMonthName(experience.start_month)"
                             readonly
                             class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
                           />
@@ -91,12 +91,12 @@
                         <label class="text-gray-400 text-sm font-medium">End Date</label>
                         <div class="space-y-2">
                           <input 
-                            :value="experience.end_month"
+                            :value="experience.end_month ? getMonthName(experience.end_month) : 'Present'"
                             readonly
                             class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
                           />
                           <input 
-                            :value="experience.end_year"
+                            :value="experience.end_year || 'Present'"
                             readonly
                             class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200"
                           />
@@ -258,17 +258,17 @@
                   <div class="flex flex-col lg:flex-row gap-6">
                     <div class="flex-grow space-y-4">
                       <div class="space-y-2">
-                        <h3 class="text-xl font-bold text-white">{{ award.name }}</h3>
+                        <h3 class="text-xl font-bold text-white">{{ award.award_name }}</h3>
                         <p class="text-gray-300">🏢 <span class="font-medium">{{ award.company }}</span></p>
-                        <p class="text-gray-400">📅 Expires: {{ formatDate(award.expiry) }}</p>
-                        <a :href="award.link" class="inline-flex items-center gap-2 text-teal-400 hover:text-teal-300 transition-colors duration-200">
+                        <p class="text-gray-400">📅 Expires: {{ formatDate(award.expiration) }}</p>
+                        <a :href="award.cert_link" class="inline-flex items-center gap-2 text-teal-400 hover:text-teal-300 transition-colors duration-200">
                           🔗 View Certificate
                         </a>
                       </div>
 
-                      <div class="mt-4" v-if="award.image">
-                        <img :src="award.image" alt="Award Photo" class="max-w-xs rounded-lg border border-gray-600" />
-                      </div>
+                                             <div class="mt-4" v-if="award.photo_url">
+                         <img :src="award.photo_url" alt="Award Photo" class="max-w-xs rounded-lg border border-gray-600" />
+                       </div>
                     </div>
 
                     <div class="flex lg:flex-col gap-3">
@@ -303,12 +303,50 @@
                       v-model="newAward.expiry"
                       class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50 transition-all duration-300" 
                     />
-                    <input 
-                      v-model="newAward.link"
-                      placeholder="Certificate link" 
-                      class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50 transition-all duration-300" 
-                    />
-                  </div>
+                                         <input 
+                       v-model="newAward.link"
+                       placeholder="Certificate link" 
+                       class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50 transition-all duration-300" 
+                     />
+                   </div>
+
+                   <div class="md:col-span-2">
+                     <label class="text-gray-300 block text-sm font-medium mb-2">Award Image (Optional)</label>
+                     <div class="flex items-center gap-4">
+                       <input 
+                         type="file" 
+                         ref="awardImageInput"
+                         @change="handleAwardImageChange"
+                         accept="image/*"
+                         class="hidden"
+                       />
+                       <button 
+                         type="button"
+                         @click="$refs.awardImageInput.click()"
+                         class="px-4 py-2 bg-gray-700 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-600 transition-all duration-300"
+                       >
+                         📁 Choose Image
+                       </button>
+                       <span v-if="newAward.imageFile" class="text-gray-400 text-sm">
+                         {{ newAward.imageFile.name }}
+                       </span>
+                       <button 
+                         v-if="newAward.imageFile"
+                         type="button"
+                         @click="clearAwardImage"
+                         class="text-red-400 hover:text-red-300 transition-colors duration-200"
+                       >
+                         ❌ Clear
+                       </button>
+                     </div>
+                     <div v-if="newAward.imagePreview" class="mt-3">
+                       <img 
+                         :src="newAward.imagePreview" 
+                         alt="Preview" 
+                         class="max-w-xs rounded-lg border border-gray-600"
+                       />
+                     </div>
+                   </div>
                   <button 
                     type="button" 
                     @click="addAward"
@@ -342,15 +380,15 @@
                   <div v-for="project in projects" :key="project.id" class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 hover:border-gray-600">
                     <div class="relative h-48 overflow-hidden">
                       <img 
-                        :src="project.image || 'https://via.placeholder.com/400x200/1f2937/ffffff?text=' + encodeURIComponent(project.name)"
+                        :src="project.project_image_url || 'https://via.placeholder.com/400x200/1f2937/ffffff?text=' + encodeURIComponent(project.project_name)"
                         alt="Project Image" 
                         class="w-full h-full object-cover"
                       />
                     </div>
                     
                     <div class="p-6">
-                      <h3 class="text-xl font-bold text-white mb-2">{{ project.name }}</h3>
-                      <p class="text-gray-300 text-sm mb-4">{{ project.description }}</p>
+                      <h3 class="text-xl font-bold text-white mb-2">{{ project.project_name }}</h3>
+                      <p class="text-gray-300 text-sm mb-4">{{ project.project_description }}</p>
                       
                       <div class="flex flex-wrap gap-2 mb-4">
                         <span v-for="tech in projectTechnologies(project)" :key="tech" class="px-3 py-1 text-xs font-medium bg-gray-700 border border-gray-600 text-gray-300 rounded-full">
@@ -419,6 +457,44 @@
                         class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50 transition-all duration-300" 
                       />
                     </div>
+
+                    <div class="md:col-span-2">
+                      <label class="text-gray-300 block text-sm font-medium mb-2">Project Image</label>
+                      <div class="flex items-center gap-4">
+                        <input 
+                          type="file" 
+                          ref="projectImageInput"
+                          @change="handleProjectImageChange"
+                          accept="image/*"
+                          class="hidden"
+                        />
+                        <button 
+                          type="button"
+                          @click="$refs.projectImageInput.click()"
+                          class="px-4 py-2 bg-gray-700 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-600 transition-all duration-300"
+                        >
+                          📁 Choose Image
+                        </button>
+                        <span v-if="newProject.imageFile" class="text-gray-400 text-sm">
+                          {{ newProject.imageFile.name }}
+                        </span>
+                        <button 
+                          v-if="newProject.imageFile"
+                          type="button"
+                          @click="clearProjectImage"
+                          class="text-red-400 hover:text-red-300 transition-colors duration-200"
+                        >
+                          ❌ Clear
+                        </button>
+                      </div>
+                      <div v-if="newProject.imagePreview" class="mt-3">
+                        <img 
+                          :src="newProject.imagePreview" 
+                          alt="Preview" 
+                          class="max-w-xs rounded-lg border border-gray-600"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <button 
@@ -479,13 +555,17 @@ const newAward = ref({
   name: '',
   company: '',
   expiry: '',
-  link: ''
+  link: '',
+  imageFile: null,
+  imagePreview: null
 });
 const newProject = ref({
   name: '',
   description: '',
   technologies: '',
-  link: ''
+  link: '',
+  imageFile: null,
+  imagePreview: null
 });
 
 const loading = reactive({
@@ -514,11 +594,19 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString();
 };
 
+const getMonthName = (monthNumber) => {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  return months[monthNumber - 1] || 'Unknown';
+};
+
 const projectTechnologies = (project) => {
-  if (typeof project.technologies === 'string') {
-    return project.technologies.split(',').map(tech => tech.trim()).filter(Boolean);
+  if (typeof project.programming_language === 'string') {
+    return project.programming_language.split(',').map(tech => tech.trim()).filter(Boolean);
   }
-  return Array.isArray(project.technologies) ? project.technologies : [];
+  return Array.isArray(project.programming_language) ? project.programming_language : [];
 };
 
 // API Functions
@@ -689,9 +777,33 @@ const addAward = async () => {
   if (newAward.value.name && newAward.value.company) {
     try {
       saving.value = true;
-      const response = await axios.post('/api/awards', newAward.value);
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('name', newAward.value.name);
+      formData.append('company', newAward.value.company);
+      formData.append('expiry', newAward.value.expiry);
+      formData.append('link', newAward.value.link);
+      
+      if (newAward.value.imageFile) {
+        formData.append('image', newAward.value.imageFile);
+      }
+      
+      const response = await axios.post('/api/awards', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
       awards.value.push(response.data.award || response.data);
-      newAward.value = { name: '', company: '', expiry: '', link: '' };
+      newAward.value = { 
+        name: '', 
+        company: '', 
+        expiry: '', 
+        link: '', 
+        imageFile: null, 
+        imagePreview: null 
+      };
       alert('Award added successfully!');
     } catch (err) {
       console.error('Error adding award:', err);
@@ -716,14 +828,80 @@ const removeAward = async (id) => {
   }
 };
 
+// Award image handling
+const handleAwardImageChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    newAward.value.imageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      newAward.value.imagePreview = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const clearAwardImage = () => {
+  newAward.value.imageFile = null;
+  newAward.value.imagePreview = null;
+  if (this.$refs.awardImageInput) {
+    this.$refs.awardImageInput.value = '';
+  }
+};
+
+// Project image handling
+const handleProjectImageChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    newProject.value.imageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      newProject.value.imagePreview = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const clearProjectImage = () => {
+  newProject.value.imageFile = null;
+  newProject.value.imagePreview = null;
+  if (this.$refs.projectImageInput) {
+    this.$refs.projectImageInput.value = '';
+  }
+};
+
 // Projects management
 const addProject = async () => {
   if (newProject.value.name && newProject.value.description) {
     try {
       saving.value = true;
-      const response = await axios.post('/api/projects', newProject.value);
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('name', newProject.value.name);
+      formData.append('description', newProject.value.description);
+      formData.append('technologies', newProject.value.technologies);
+      formData.append('link', newProject.value.link);
+      
+      if (newProject.value.imageFile) {
+        formData.append('image', newProject.value.imageFile);
+      }
+      
+      const response = await axios.post('/api/projects', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
       projects.value.push(response.data.project || response.data);
-      newProject.value = { name: '', description: '', technologies: '', link: '' };
+      newProject.value = { 
+        name: '', 
+        description: '', 
+        technologies: '', 
+        link: '', 
+        imageFile: null, 
+        imagePreview: null 
+      };
       alert('Project added successfully!');
     } catch (err) {
       console.error('Error adding project:', err);

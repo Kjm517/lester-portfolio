@@ -12,9 +12,9 @@ Route::get('/dbconn', function () {
     return view('dbconn');
 });
 
-// Catch-all route (must be last)
+// Catch-all route (must be last) - exclude API routes
 Route::get('/{pathMatch}', function () {
     return view('welcome');
-})->where('pathMatch', '.*');
+})->where('pathMatch', '^(?!api).*');
 
 ?>

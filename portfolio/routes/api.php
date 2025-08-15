@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\AboutController;
-use App\Http\Controllers\ExperienceController;
-use App\Http\Controllers\AwardController;
-use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\Api\AboutController;
+use App\Http\Controllers\Api\ExperienceController;
+use App\Http\Controllers\Api\AwardController;
+use App\Http\Controllers\Api\PortfolioController;
 
 // About routes
 Route::get('/abouts', [AboutController::class, 'index']);
@@ -20,7 +20,7 @@ Route::get('/awards', [AwardController::class, 'index']);
 Route::post('/awards', [AwardController::class, 'store']);
 Route::delete('/awards/{id}', [AwardController::class, 'destroy']);
 
-// Project routes
-Route::get('/projects', [ProjectController::class, 'index']);
-Route::post('/projects', [ProjectController::class, 'store']);
-Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+// Portfolio/Project routes
+Route::get('/projects', [PortfolioController::class, 'index']);
+Route::post('/projects', [PortfolioController::class, 'store']);
+Route::delete('/projects/{id}', [PortfolioController::class, 'destroy']);
