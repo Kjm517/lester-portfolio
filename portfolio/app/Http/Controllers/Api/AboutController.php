@@ -1,48 +1,54 @@
 <?php
-namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+namespace App\Http\Controllers;
+
 use App\Models\About;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class AboutController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
         $abouts = About::all();
-        return response()->json(['abouts' => $abouts]);
+        
+        return response()->json([
+            'success' => true,
+            'abouts' => $abouts
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'description' => 'required|string',
             'skills' => 'nullable|string'
         ]);
 
-        $about = About::create($request->all());
-        return response()->json(['about' => $about], 201);
+        $about = About::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'About created successfully',
+            'about' => $about
+        ], 201);
     }
 
-    public function show(About $about)
+    public function update(Request $request, $id): JsonResponse
     {
-        return response()->json(['about' => $about]);
-    }
-
-    public function update(Request $request, About $about)
-    {
-        $request->validate([
+        $about = About::findOrFail($id);
+        
+        $validated = $request->validate([
             'description' => 'required|string',
             'skills' => 'nullable|string'
         ]);
 
-        $about->update($request->all());
-        return response()->json(['about' => $about]);
-    }
+        $about->update($validated);
 
-    public function destroy(About $about)
-    {
-        $about->delete();
-        return response()->json(['message' => 'About deleted successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'About updated successfully',
+            'about' => $about
+        ]);
     }
 }

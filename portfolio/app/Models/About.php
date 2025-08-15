@@ -1,8 +1,9 @@
 <?php
-namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+namespace App\Models\About;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class About extends Model
 {
@@ -13,15 +14,8 @@ class About extends Model
         'skills'
     ];
 
-    // Convert skills from comma-separated string to array
-    public function getSkillsAttribute($value)
-    {
-        return $value ? explode(',', $value) : [];
-    }
-
-    // Convert skills array to comma-separated string for storage
-    public function setSkillsAttribute($value)
-    {
-        $this->attributes['skills'] = is_array($value) ? implode(',', $value) : $value;
-    }
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
 }

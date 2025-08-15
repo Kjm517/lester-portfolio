@@ -1,26 +1,26 @@
 <?php
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AboutController;
-use App\Http\Controllers\Api\ExperienceController;
-use App\Http\Controllers\Api\PortfolioController;
-use App\Http\Controllers\Api\AwardController;
+
+use App\Http\Controllers\AboutController;
+use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\AwardController;
+use App\Http\Controllers\ProjectController;
 
 // About routes
-Route::apiResource('abouts', AboutController::class);
+Route::get('/abouts', [AboutController::class, 'index']);
+Route::post('/abouts', [AboutController::class, 'store']);
+Route::put('/abouts/{id}', [AboutController::class, 'update']);
 
 // Experience routes
-Route::apiResource('experiences', ExperienceController::class);
-
-// Portfolio routes
-Route::apiResource('portfolios', PortfolioController::class);
+Route::get('/experiences', [ExperienceController::class, 'index']);
+Route::post('/experiences', [ExperienceController::class, 'store']);
+Route::delete('/experiences/{id}', [ExperienceController::class, 'destroy']);
 
 // Award routes
-Route::apiResource('awards', AwardController::class);
+Route::get('/awards', [AwardController::class, 'index']);
+Route::post('/awards', [AwardController::class, 'store']);
+Route::delete('/awards/{id}', [AwardController::class, 'destroy']);
 
-// Public routes for displaying portfolio (no authentication required)
-Route::prefix('public')->group(function () {
-    Route::get('about', [AboutController::class, 'index']);
-    Route::get('experiences', [ExperienceController::class, 'index']);
-    Route::get('portfolios', [PortfolioController::class, 'index']);
-    Route::get('awards', [AwardController::class, 'index']);
-});
+// Project routes
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::post('/projects', [ProjectController::class, 'store']);
+Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
